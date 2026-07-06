@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SpeakWise – Student & Teacher Speaking Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Baloo+2:wght@500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* SpeakWise Palette */
+      --sw-deep-blue: #00448f;
+      --sw-mid-blue: #0072c6;
+      --sw-deep-green: #05964c;
+      --sw-light-green: #46c96f;
+      --sw-soft-yellow: #ffe89a;
+      --sw-bg: #f4f8ff;
+      --sw-text: #1b2740;
+
+      --sw-radius-xl: 28px;
+      --sw-radius-lg: 20px;
+      --sw-radius-md: 14px;
+      --sw-shadow-soft: 0 20px 45px rgba(0, 40, 80, 0.18);
+      --sw-transition-fast: 0.2s ease-out;
+      --sw-transition-med: 0.5s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, #e4f0ff 0%, #fdfdff 40%, #f4f8ff 100%),
+        linear-gradient(160deg, #ffffff, #f4f8ff);
+      color: var(--sw-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: var(--sw-radius-xl);
+      box-shadow: var(--sw-shadow-soft);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Decorative Blobs */
+    .app-shell::before,
+    .app-shell::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    .app-shell::before {
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(0, 114, 198, 0.38), transparent 70%);
+      top: -80px;
+      left: -60px;
+      animation: blobMove1 12s infinite alternate;
+    }
+
+    .app-shell::after {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(5, 150, 76, 0.36), transparent 70%);
+      bottom: -80px;
+      right: -50px;
+      animation: blobMove2 10s infinite alternate;
+    }
+
+    @keyframes blobMove1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(20px, 10px) scale(1.05); }
+    }
+
+    @keyframes blobMove2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-15px, -10px) scale(1.06); }
+    }
+
+    /* Header */
+    .sw-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 30px 18px;
+      background: radial-gradient(circle at 0% 0%, #0072c6 0%, #00448f 40%, #003366 100%);
+      color: #ffffff;
+      position: relative;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Brand Logo Image Configuration */
+    .logo-img {
+      width: 65px;
+      height: 65px;
+      object-fit: contain;
+      border-radius: 12px;
+      background-color: #ffffff;
+      padding: 4px;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25));
+      animation: logoFloat 4.5s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .mic-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 16px;
+      border: 2px dashed rgba(255, 255, 255, 0.5);
+      animation: micRingPulse 8s linear infinite;
+    }
+
+    @keyframes micRingPulse {
+      0% { transform: scale(0.96) rotate(0deg); opacity: 0.6; }
+      100% { transform: scale(1.04) rotate(360deg); opacity: 0.9; }
+    }
+
+    .brand-text h1 {
+      font-family: "Baloo 2", system-ui;
+      font-size: 1.8rem;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 0.9rem;
+    }
+
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      margin-bottom: 7px;
+    }
+
+    .mic-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--sw-soft-yellow);
+      box-shadow: 0 0 0 0 rgba(255, 232, 154, 0.7);
+      animation: livePulse 1.8s infinite;
+    }
+
+    @keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 232, 154, 0.8); }
+      100% { box-shadow: 0 0 0 14px rgba(255, 232, 154, 0); }
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 14px 26px 4px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), #ffffff);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .tab-button {
+      position: relative;
+      padding: 9px 20px 12px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(0, 68, 143, 0.03);
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #4b5a7a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--sw-transition-fast);
+    }
+
+    .tab-button::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--sw-mid-blue), var(--sw-light-green));
+      transform: scaleX(0);
+      transition: transform var(--sw-transition-med);
+    }
+
+    .tab-button.active {
+      color: var(--sw-deep-blue);
+      font-weight: 600;
+      background: rgba(4, 170, 109, 0.12);
+    }
+
+    .tab-button.active::after { transform: scaleX(1); }
+
+    .tab-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #7a869f;
+      padding-bottom: 12px;
+    }
+
+    /* Content Layout */
+    .content {
+      padding: 22px 26px 26px;
+      background: linear-gradient(180deg, #ffffff, var(--sw-bg));
+    }
+
+    .tab-panel {
+      display: none;
+      animation: panelFadeIn 0.5s ease-out;
+    }
+
+    .tab-panel.active { display: block; }
+
+    @keyframes panelFadeIn {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .panel-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: var(--sw-radius-lg);
+      padding: 22px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--sw-deep-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(4, 170, 109, 0.1);
+      color: var(--sw-deep-green);
+      border: 1px solid rgba(4, 170, 109, 0.3);
+    }
+
+    .section-title {
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7a869f;
+      margin: 16px 0 8px 0;
+    }
+
+    /* UI Fields */
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .field {
+      flex: 1 1 180px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8b95aa;
+      margin-bottom: 6px;
+    }
+
+    .select, .input, .textarea {
+      width: 100%;
+      border-radius: var(--sw-radius-md);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      outline: none;
+      background: #f9fbff;
+      font-family: inherit;
+      transition: all var(--sw-transition-fast);
+    }
+
+    .select:focus, .input:focus, .textarea:focus {
+      border-color: var(--sw-mid-blue);
+      box-shadow: 0 0 0 3px rgba(0, 114, 198, 0.15);
+      background: #ffffff;
+    }
+
+    .textarea {
+      min-height: 100px;
+      white-space: pre-line;
+    }
+
+    /* Interactive Elements */
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--sw-transition-fast);
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, var(--sw-mid-blue), var(--sw-light-green));
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(0, 68, 143, 0.2);
+    }
+
+    .btn-danger {
+      background: linear-gradient(120deg, #c62828, #ef5350);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(198, 40, 40, 0.2);
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Task Box */
+    #task {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--sw-deep-blue);
+      background: #f0f4ff;
+      padding: 15px;
+      border-radius: var(--sw-radius-md);
+      border-left: 5px solid var(--sw-mid-blue);
+      margin-top: 10px;
+    }
+
+    /* Waveform Animation */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .status-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(0, 68, 143, 0.08);
+      color: var(--sw-deep-blue);
+      font-size: 0.85rem;
+    }
+
+    .wave {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 20px;
+    }
+
+    .wave span {
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--sw-soft-yellow), var(--sw-mid-blue));
+      height: 4px;
+    }
+
+    .recording-active .wave span {
+      animation: waveMove 1.4s ease-in-out infinite;
+    }
+    .recording-active .wave span:nth-child(2) { animation-delay: 0.12s; }
+    .recording-active .wave span:nth-child(3) { animation-delay: 0.24s; }
+    .recording-active .wave span:nth-child(4) { animation-delay: 0.36s; }
+    .recording-active .wave span:nth-child(5) { animation-delay: 0.48s; }
+
+    @keyframes waveMove {
+      0%, 100% { height: 4px; }
+      50% { height: 20px; }
+    }
+
+    /* Metric Grid Cards */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .score-card {
+      background: #f7fbff;
+      border-radius: var(--sw-radius-md);
+      padding: 12px;
+      text-align: center;
+      border: 1px solid rgba(0, 68, 143, 0.06);
+    }
+
+    .score-label { font-size: 0.8rem; color: #7a869f; }
+    .score-value { font-size: 1.6rem; font-weight: 700; color: var(--sw-deep-blue); margin: 4px 0; }
+    .score-extra { font-size: 0.72rem; color: #8b95aa; }
+
+    /* Assessment Box Styles */
+    .feedback-box {
+      margin-top: 14px;
+      border-radius: var(--sw-radius-md);
+      background: #ffffff;
+      border: 1px dashed rgba(15, 23, 42, 0.2);
+      padding: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #summary { margin-top: 12px; font-weight: 600; font-size: 0.9rem; }
+    .success { color: #05964c; }
+    .error { color: #c62828; }
+
+    /* Teacher View Components */
+    .table-wrap {
+      margin-top: 12px;
+      border-radius: var(--sw-radius-md);
+      overflow-x: auto;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead { background: linear-gradient(120deg, var(--sw-deep-blue), var(--sw-mid-blue)); color: #ffffff; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(15, 23, 42, 0.06); }
+    tbody tr:nth-child(even) { background: #f7fbff; }
+
+    .feedback-cell {
+      white-space: pre-line;
+      max-width: 300px;
+    }
+
+    /* Protected Password Gate Overlay Styles */
+    .password-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .password-card {
+      max-width: 400px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      border-radius: var(--sw-radius-lg);
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .password-card h2 {
+      color: var(--sw-deep-blue);
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .password-card p {
+      font-size: 0.88rem;
+      color: #6b778d;
+      margin-bottom: 20px;
+    }
+
+    .sw-footer {
+      padding: 16px 26px;
+      font-size: 0.8rem;
+      color: #8b95aa;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="sw-header">
+      <div class="logo-block">
+        <div class="logo-wrapper">
+          <img src="speakwise.jpeg" alt="SpeakWise Logo" class="logo-img">
+          <span class="mic-ring"></span>
+        </div>
+        <div class="brand-text">
+          <h1>SpeakWise – AI Assessment</h1>
+          <p>Practice speaking, gather real-time metrics, and improve your English.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-pill">
+          <span class="mic-dot"></span>
+          <span>Session Dynamic</span>
+        </div>
+        <div><span>Fluency · Grammar · Vocabulary · CEFR Matrix</span></div>
+      </div>
+    </header>
+
+    <nav class="tab-bar">
+      <button class="tab-button active" data-target="#student-panel">
+        <span>🎓</span> <span>Student Dashboard</span>
+      </button>
+      <button class="tab-button" data-target="#teacher-panel">
+        <span>👨‍🏫</span> <span>Teacher Dashboard</span>
+      </button>
+    </nav>
+    <div class="tab-hint">Switch perspectives to see live responses submit seamlessly to the classroom log.</div>
+
+    <main class="content">
+
+      <section id="student-panel" class="tab-panel active">
+        <div class="panel-grid">
+          
+          <div>
+            <div class="card">
+              <div class="card-title">
+                <span>Configure Profile</span>
+                <span class="pill">Setup</span>
+              </div>
+              
+              <div class="field" style="margin-bottom: 12px;">
+                <label for="studentName">Full Name</label>
+                <input type="text" id="studentName" class="input" placeholder="Enter your profile name">
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="level">Target Tier</label>
+                  <select id="level" class="select">
+                    <option value="primary">Primary School</option>
+                    <option value="secondary">Secondary School</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="accent">Accent Profile</label>
+                  <select id="accent" class="select">
+                    <option value="en-GB">British 🇬🇧</option>
+                    <option value="en-US">American 🇺🇸</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <span>Active Task Board</span>
+                <button class="btn btn-primary" onclick="generateTopic()">🎲 Next Random Topic</button>
+              </div>
+              <p id="task">Click "Next Random Topic" above to populate an interactive challenge.</p>
+            </div>
+          </div>
+
+          <div>
+            <div id="recordingCard" class="card">
+              <div class="card-title">
+                <span>Audio Capturer</span>
+                <div class="wave" aria-label="Audio Stream Monitoring UI">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="btn btn-primary" onclick="startRecording()">🎤 Start Capturing</button>
+                <button class="btn btn-danger" onclick="stopRecording()">⛔ Terminate & Evaluate</button>
+              </div>
+
+              <div class="status-bar">
+                <div class="status-pill" id="recordingStatus">Status: Standing by</div>
+              </div>
+
+              <h3 class="section-title">Live Text Streaming Transcript</h3>
+              <div class="textarea" id="outputBox" style="min-height: 80px; overflow-y: auto;"><span id="output" style="color: #6b778d;">Your real-time generated engine translation text appears right here...</span></div>
+
+              <h3 class="section-title">Algorithmic Grade Matrix</h3>
+              <div class="score-grid">
+                <div class="score-card">
+                  <div class="score-label">Fluency</div>
+                  <div class="score-value" id="fluencyScore">0</div>
+                  <div class="score-extra">Flow & cadence</div>
+                </div>
+                <div class="score-card">
+                  <div class="score-label">Grammar</div>
+                  <div class="score-value" id="grammarScore">0</div>
+                  <div class="score-extra">Syntax validation</div>
+                </div>
+                <div class="score-card">
+                  <div class="score-label">Vocabulary</div>
+                  <div class="score-value" id="vocabScore">0</div>
+                  <div class="score-extra">Lexical variety</div>
+                </div>
+                <div class="score-card" style="background: rgba(4, 170, 109, 0.05);">
+                  <div class="score-label">CEFR Rank</div>
+                  <div class="score-value" id="bandScore" style="color: var(--sw-deep-green);">A1</div>
+                  <div class="score-extra">Assigned Bracket</div>
+                </div>
+              </div>
+
+              <h3 class="section-title">Detailed Structural Assessment Analytics</h3>
+              <div class="feedback-box" id="feedback" style="color: #6b778d; background: #fafbfe;">
+                No metrics configured. Engage recording elements to generate standard evaluations.
+              </div>
+
+              <div id="summary"><span style="color:#7a869f;">Submission waiting on active parameters...</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="teacher-panel" class="tab-panel">
+        
+        <div id="gatekeeperContainer" class="password-overlay">
+          <div class="password-card">
+            <h2>🔑 Access Restricted</h2>
+            <p>Please enter the administrative classroom key to authenticate this terminal view.</p>
+            <input type="password" id="gateKeyInput" class="input" placeholder="Enter teacher password..." style="margin-bottom: 14px; text-align: center;">
+            <button class="btn btn-primary" onclick="verifyGatekeeperKey()" style="width: 100%; justify-content: center;">Unlock Logs</button>
+            <div id="gateFeedback" style="color: #c62828; font-size: 0.85rem; margin-top: 8px; font-weight: 600;"></div>
+          </div>
+        </div>
+
+        <div id="securedTeacherView" style="display: none;">
+          <div class="card">
+            <div class="card-title">
+              <span>Historical Evaluations Classroom Stream</span>
+              <button class="btn btn-primary btn-sm" onclick="downloadExcel()">📊 Download Excel</button>
+            </div>
+            <p style="font-size:0.9rem; color:#6b778d; margin-bottom:15px;">Real-time tracking of speaking submissions forwarded directly by database transaction events.</p>
+            
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Topic</th>
+                    <th>Transcript</th>
+                    <th>Feedback</th>
+                    <th>Band</th>
+                    <th>Play Feedback</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherTableBody">
+                  <tr>
+                    <td colspan="7" style="text-align:center; color:#7a869f; padding:20px;">Synchronizing with Firebase dataset records...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer class="sw-footer">
+      <span>SpeakWise Framework Pro Engine</span>
+      <span>Automated Educational Speaking Metrics Platform</span>
+    </footer>
+  </div>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Firebase Configurations Container
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5XB2hyTHDQh2j-aj4TfF5e9KagoGxsvU",
+      authDomain: "speakwise-3f65e.firebaseapp.com",
+      databaseURL: "https://speakwise-3f65e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "speakwise-3f65e",
+      storageBucket: "speakwise-3f65e.firebasestorage.app",
+      messagingSenderId: "1010945573305",
+      appId: "1:1010945573305:web:f61ba2d33aee9d9d64f668",
+      measurementId: "G-58X1VKT1LG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let recognition;
+    let finalTranscript = "";
+
+    // Local Text Dictionaries
+    const primaryTopics = ["Describe your favourite teacher.", "Talk about your favourite food.", "Describe your best friend.", "Talk about your hobby.", "Describe your school.", "Describe your favourite animal.", "Talk about your family.", "Describe your favourite holiday."];
+    const secondaryTopics = ["Describe a memorable experience in your life.", "Do you think social media is beneficial?", "Describe your future career goals.", "Should homework be reduced in schools?", "Talk about environmental protection.", "Describe someone who inspires you.", "How can teenagers stay healthy?", "What are the benefits of reading books?"];
+
+    // Global Registry Container for Clean String Accessing
+    window.feedbackStorage = {};
+
+    // Dynamic Topic Router Engine
+    window.generateTopic = function(){
+        const level = document.getElementById("level").value;
+        const topics = level === "primary" ? primaryTopics : secondaryTopics;
+        document.getElementById("task").innerText = topics[Math.floor(Math.random() * topics.length)];
+    };
+
+    // Speech Stream Initialization Routing
+    window.startRecording = function(){
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(!SpeechRecognition) return alert("Please use Google Chrome for full translation compatibility.");
+
+        recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.continuous = true;
+        finalTranscript = "";
+
+        recognition.start();
+        document.getElementById("recordingCard").classList.add("recording-active");
+        document.getElementById("recordingStatus").innerText = "Status: 🎤 Recording Active...";
+        document.getElementById("output").innerText = "Listening for audio signals...";
+
+        recognition.onresult = (event) => {
+            finalTranscript = Array.from(event.results).map(result => result[0].transcript).join(" ");
+            document.getElementById("output").innerText = finalTranscript;
+        };
+    };
+
+    // Termination Signal Mapping Engine
+    window.stopRecording = async function(){
+        if(recognition) recognition.stop();
+        document.getElementById("recordingCard").classList.remove("recording-active");
+        document.getElementById("recordingStatus").innerText = "Status: Processing Framework Analytics...";
+        
+        setTimeout(() => generateFeedback(finalTranscript), 500);
+    };
+
+    // CEFR Metrics Synthesizer 
+    async function generateFeedback(text) {
+        if (!text || text.trim().length < 15) {
+            alert("Insufficient structural depth. Speak a complete statement before analysis.");
+            document.getElementById("recordingStatus").innerText = "Status: Aborted Due to Low Sample Size";
+            return;
+        }
+
+        const words = text.trim().split(/\s+/).length;
+        const hasConnectors = /(because|although|while|if|when|who|which)/gi.test(text);
+        const advancedCount = (text.match(/(experience|memorable|valuable|important|benefit|challenge|inspire|develop)/gi) || []).length;
+
+        let fluency = words < 40 ? 2 : words < 80 ? 3 : words < 130 ? 4 : 5;
+        let grammar = hasConnectors ? 4 : 2;
+        let vocab = advancedCount > 2 ? 5 : advancedCount > 0 ? 3 : 1;
+        let accuracy = words > 60 ? 4 : 2;
+
+        const total = fluency + grammar + vocab + accuracy;
+        let band = total >= 18 ? "C2" : total >= 16 ? "C1" : total >= 13 ? "B2" : total >= 10 ? "B1" : total >= 7 ? "A2" : "A1";
+
+        let feedbackHTML = `<strong>🎯 CEFR System Evaluation Profile</strong><br>
+            Fluency Processing Index: ${fluency}/5<br>
+            Syntax Verification Metrics: ${grammar}/5<br>
+            Lexical Variation Score: ${vocab}/5<br>
+            Utterance Accuracy Mapping: ${accuracy}/5<br><br>
+            <strong>Consolidated Target Assessment Category Rank: ${band}</strong><br><br>`;
+
+        const improved = `${text.trim()}.`;
+        feedbackHTML += `<strong>Structural Recommendation Transformation Model:</strong><br><span style="color:#0072c6;">"${improved}"</span>`;
+
+        // UI Element Remapping Execution
+        document.getElementById("feedback").innerHTML = feedbackHTML;
+        document.getElementById("fluencyScore").innerText = fluency;
+        document.getElementById("grammarScore").innerText = grammar;
+        document.getElementById("vocabScore").innerText = vocab;
+        document.getElementById("bandScore").innerText = band;
+        document.getElementById("recordingStatus").innerText = "Status: Metric Calculations Completed";
+
+        speakText(improved);
+        await saveToFirebase(text, feedbackHTML, band);
+    }
+
+    // Audio Output Generator Interface
+    function speakText(text){
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = document.getElementById("accent").value;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // Safely Trigger Voice Synthesis Output Without Breaking String Literals
+    window.playFeedback = function(storageKey, accent) {
+        const text = window.feedbackStorage[storageKey] || "";
+        const cleanText = text.replace(/<\/?[^>]+(>|$)/g, ""); // Strip html structural tags
+        const speech = new SpeechSynthesisUtterance(cleanText);
+        speech.lang = accent;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(speech);
+    };
+
+    // Remote Storage Database Transmitters
+    async function saveToFirebase(transcript, feedback, band){
+        try {
+            const studentName = document.getElementById("studentName").value.trim() || "Anonymous Student";
+            const topic = document.getElementById("task").innerText;
+
+            const payload = {
+                studentName,
+                topic,
+                transcript,
+                feedback,
+                band,
+                timestamp: new Date().toISOString()
+            };
+
+            await push(ref(db, "results"), payload);
+            document.getElementById("summary").innerHTML = `<span class='success'>✅ Assessment successfully committed to Cloud Database Stream!</span>`;
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById("summary").innerHTML = `<span class='error'>❌ Transaction Interrupted. Verify pipeline configurations.</span>`;
+        }
+    }
+
+    // PASSWORD LOCK PROTOCOL IMPLEMENTATION HOOK
+    window.verifyGatekeeperKey = function() {
+        const userInput = document.getElementById("gateKeyInput").value;
+        const targetPassword = "speakwise123"; // 🔴 PASSWORD
+
+        if(userInput === targetPassword) {
+            document.getElementById("gatekeeperContainer").style.display = "none";
+            document.getElementById("securedTeacherView").style.display = "block";
+            loadResults(); // Only sync and run live listener once unlocked successfully
+        } else {
+            document.getElementById("gateFeedback").innerText = "❌ Invalid Password. Access Denied.";
+        }
+    };
+
+    // LIVE SYNCHRONIZER REALTIME DATASET STREAM
+    function loadResults() {
+        const resultsRef = ref(db, "results");
+        onValue(resultsRef, (snapshot) => {
+            const data = snapshot.val();
+            const tableBody = document.getElementById("teacherTableBody");
+            tableBody.innerHTML = "";
+            window.feedbackStorage = {}; // Clear previous safely
+
+            if (data) {
+                Object.entries(data).reverse().forEach(([key, value]) => {
+                    window.feedbackStorage[key] = value.feedback || "";
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><strong>${value.studentName || 'Anonymous'}</strong></td>
+                        <td>${value.topic || 'General Practice'}</td>
+                        <td>${value.transcript || ''}</td>
+                        <td class="feedback-cell">${value.feedback || ''}</td>
+                        <td><span class="pill" style="font-weight:600;">${value.band || 'A1'}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" style="margin: 2px 0; padding: 4px 8px;" onclick="playFeedback('${key}', 'en-US')">🇺🇸 US</button>
+                            <button class="btn btn-primary btn-sm" style="margin: 2px 0; padding: 4px 8px;" onclick="playFeedback('${key}', 'en-GB')">🇬🇧 UK</button>
+                        </td>
+                        <td><span style="font-size:0.75rem; color:#7a869f;">${value.timestamp ? new Date(value.timestamp).toLocaleString() : 'N/A'}</span></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#7a869f; padding:20px;">No historical evaluative telemetry found in the database.</td></tr>`;
+            }
+        });
+    }
+
+    // Excel / CSV Extraction Module Hook
+    window.downloadExcel = function(){
+        let csv = "Student,Topic,Transcript,Feedback,Band,Time\n";
+        document.querySelectorAll("#teacherTableBody tr").forEach(row => {
+            const cols = row.querySelectorAll("td");
+            if(cols.length < 7) return; 
+
+            let rowData = [];
+            cols.forEach((col, index) => {
+                if(index !== 5){ // Drop actions play row
+                    rowData.push(`"${col.innerText.replace(/"/g, '""')}"`);
+                }
+            });
+            csv += rowData.join(",") + "\n";
+        });
+
+        const blob = new Blob([csv], {type: "text/csv"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "student_results.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+  </script>
+
+  <script>
+    const tabButtons = document.querySelectorAll(".tab-button");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-target");
+
+        tabButtons.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+
+        btn.classList.add("active");
+        const panel = document.querySelector(target);
+        if (panel) panel.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
